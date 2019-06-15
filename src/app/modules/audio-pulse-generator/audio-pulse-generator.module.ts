@@ -13,7 +13,6 @@ export class AudioPulseGeneratorModule {
   audioContext: AudioContext;
   gainNode: GainNode;
   oscillator: OscillatorNode;
-  isStarted = false;
 
   constructor() {
     this.audioContext = new AudioContext();

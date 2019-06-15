@@ -1,4 +1,11 @@
 <div>
+
+  <ng-container *ngFor="let beat of beatObj">
+    <div [ngClass]="{active: beat.active}" id='beatIndicator'>{{ beat.index + 1 }}</div>
+  </ng-container>
+
+  <br />
+
   <!-- tempo label and input -->
   <ng-container>
     <label for="tempo">Tempo: </label>
@@ -10,6 +17,13 @@
       Also restart might be more descriptive to what is actually happening.
     -->
     <input id="tempo" #tempo (input)=setTempo(tempo.value) type="number" value="120" min="60" max="360" />
+
+    <br/>
+
+    <div *ngIf=!isStarted>
+        <label for="beatsPerBar">Beats: </label>
+        <input  id="beatsPerBar" #beatsPerBar (input)=setBeatsPerBar(beatsPerBar.value) type="number" value="4" min="2" max="64" />
+    </div>
   </ng-container>
 
   <br/>
@@ -23,14 +37,12 @@
   </ng-container>
   <br/>
 
-  <span [ngClass]="{active: isPulsing}" id='pulse'></span>
-
   <br/>
   <!-- volume control -->
   <div>
     <ng-container>
         <label for="volume">Trashy Volume Control:  </label>
-        <input id="volume" #volume (input)=changeVolume(volume.value) value="10" type="range" min="0" max="100" step="5" />
+        <input id="volume" #volume (input)=audioClip.setVolume(volume.value) true type="range" min="0" max="100" step="2" />
       </ng-container>
   </div>
 

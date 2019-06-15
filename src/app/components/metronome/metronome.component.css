@@ -1,12 +1,16 @@
-#pulse{
+#beatIndicator{
   display: inline-block;
-  min-width: 22px;
-  min-height: 22px;
+  padding: 1em;
+  font-weight: bold;
   border: 1px solid black;
   background-color: white;
-  border-radius: 5em;
+  border-radius: 90deg;
+  align-content: center;
+  text-align: center;
+  box-sizing: border-box;
+  transition: all 0.2s linear;
 }
 
-#pulse.active{
+#beatIndicator.active{
   background-color: red;
 }

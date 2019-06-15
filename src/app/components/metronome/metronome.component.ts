@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, Output } from '@angular/core';
 import { log } from 'util';
 import { AudioPulseGeneratorModule } from 'src/app/modules/audio-pulse-generator/audio-pulse-generator.module';
+import { AudioClipPlayerModule } from 'src/app/modules/audio-clip-player/audio-clip-player.module';
 
 @Component({
   selector: 'app-metronome',
@@ -13,44 +14,45 @@ export class MetronomeComponent implements OnInit {
   @Input() tempo: number;
   @Input() beats: number;
 
-  volume = 10;
-  audioGen: AudioPulseGeneratorModule;
+  @Output() beatObj: Array<{index: number, active: boolean}>;
+  @Output() audioClip: AudioClipPlayerModule;
+
   intervalTicker;
-
-
   isStarted = false;
-  isPulsing = false;
-
 
   ngOnInit() {
     console.log('constructing metronome: ' + this.tempo);
-    this.audioGen = new AudioPulseGeneratorModule();
+    this.audioClip = new AudioClipPlayerModule();
   }
 
   start() {
+    this.beatObj = new Array();
+    for (let i = 0; i < this.beats; i++) {
+      this.beatObj.push({
+        index: i,
+        active: false
+      });
+    }
+
     const $this = this;
     let beat = 0;
     const wholeBeatTime = 1000 * 60 / this.tempo;
-
     this.intervalTicker = setInterval(() => {
       if (!$this.isStarted) {
         return;
       }
-      $this.isPulsing = true;
-      if (beat === 0) {
-        $this.audioGen.playPulse(560, 0.01 * $this.volume);
-        beat = this.beats;
+      if (beat >= this.beats) {
+        $this.audioClip.playBar();
+        beat = 0;
       } else {
-        $this.audioGen.playPulse(540, 0.01 * $this.volume);
+        $this.audioClip.playBeat();
       }
-      beat--;
-
+      this.beatObj[beat].active = true;
       setTimeout(() => {
-        $this.audioGen.stopPulse();
-        $this.isPulsing = false;
+        this.beatObj[beat-1].active = false;
       }, wholeBeatTime / 2); // half the time of the whole beat
+      beat++;
     }, wholeBeatTime);
-
     this.isStarted = true;
   }
 
@@ -59,20 +61,16 @@ export class MetronomeComponent implements OnInit {
     this.isStarted = false;
   }
 
-  changeVolume(percent) {
-    this.volume = percent;
-  }
-
-  getVolume(): number {
-    return this.volume;
-  }
-
-  setTempo(tempo) {
+  setTempo(tempo: number) {
     this.tempo = tempo;
     if (this.isStarted) {
       this.stop();
       this.start();
     }
+  }
+
+  setBeatsPerBar(beatsPerBar: number){
+    this.beats = beatsPerBar;
   }
 
 }
