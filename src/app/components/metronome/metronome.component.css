@@ -1,0 +1,12 @@
+#pulse{
+  display: inline-block;
+  min-width: 22px;
+  min-height: 22px;
+  border: 1px solid black;
+  background-color: white;
+  border-radius: 5em;
+}
+
+#pulse.active{
+  background-color: red;
+}

@@ -1,13 +1,37 @@
 <div>
-  <ng-container *ngIf=!isStarted>
-    Stopped.
-    <br/>
-    <button (click)=start()>Start</button>
+  <!-- tempo label and input -->
+  <ng-container>
+    <label for="tempo">Tempo: </label>
+    <!--
+      Currently we need to stop the metronome to change the tempo
+      this is due to the setInterval where the function timer is constant on instantiation.
+      we can stop and start on tempo change like below.
+
+      Also restart might be more descriptive to what is actually happening.
+    -->
+    <input id="tempo" #tempo (input)=setTempo(tempo.value) type="number" value="120" min="60" max="360" />
   </ng-container>
 
+  <br/>
+
+  <!-- interchangable stop start buttons -->
+  <ng-container *ngIf=!isStarted>
+    <button (click)=start()>Start</button>
+  </ng-container>
   <ng-container *ngIf=isStarted>
-      Started.
-      <br/>
       <button (click)=stop()>Stop</button>
   </ng-container>
+  <br/>
+
+  <span [ngClass]="{active: isPulsing}" id='pulse'></span>
+
+  <br/>
+  <!-- volume control -->
+  <div>
+    <ng-container>
+        <label for="volume">Trashy Volume Control:  </label>
+        <input id="volume" #volume (input)=changeVolume(volume.value) value="10" type="range" min="0" max="100" step="5" />
+      </ng-container>
+  </div>
+
 </div>

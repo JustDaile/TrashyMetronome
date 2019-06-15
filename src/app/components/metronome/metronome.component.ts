@@ -1,4 +1,6 @@
 import { Component, OnInit, Input, Output } from '@angular/core';
+import { log } from 'util';
+import { AudioPulseGeneratorModule } from 'src/app/modules/audio-pulse-generator/audio-pulse-generator.module';
 
 @Component({
   selector: 'app-metronome',
@@ -11,56 +13,66 @@ export class MetronomeComponent implements OnInit {
   @Input() tempo: number;
   @Input() beats: number;
 
-  audioContext: AudioContext;
-  oscillator: OscillatorNode;
+  volume = 10;
+  audioGen: AudioPulseGeneratorModule;
   intervalTicker;
 
+
   isStarted = false;
+  isPulsing = false;
 
 
   ngOnInit() {
     console.log('constructing metronome: ' + this.tempo);
+    this.audioGen = new AudioPulseGeneratorModule();
   }
 
   start() {
-    // setup basic oscillator
-    this.audioContext = new AudioContext();
-    this.oscillator = this.audioContext.createOscillator();
-    this.oscillator.type = 'sine'; // this is the default - also square, sawtooth, triangle
-    this.oscillator.frequency.value = 0; // Hz
-    this.oscillator.start();
-
     const $this = this;
     let beat = 0;
+    const wholeBeatTime = 1000 * 60 / this.tempo;
 
     this.intervalTicker = setInterval(() => {
       if (!$this.isStarted) {
         return;
       }
-
-      // console.log('tick on beat ' + beat);
+      $this.isPulsing = true;
       if (beat === 0) {
-        $this.oscillator.frequency.value = 520; // Hz
+        $this.audioGen.playPulse(560, 0.01 * $this.volume);
         beat = this.beats;
       } else {
-        $this.oscillator.frequency.value = 440; // Hz
+        $this.audioGen.playPulse(540, 0.01 * $this.volume);
       }
-      $this.oscillator.connect($this.audioContext.destination);
       beat--;
+
       setTimeout(() => {
-        $this.oscillator.disconnect($this.audioContext.destination);
-      }, 200);
-    }, 1000 * 60 / this.tempo);
+        $this.audioGen.stopPulse();
+        $this.isPulsing = false;
+      }, wholeBeatTime / 2); // half the time of the whole beat
+    }, wholeBeatTime);
 
     this.isStarted = true;
   }
 
   stop() {
     clearInterval(this.intervalTicker);
-    this.oscillator.stop();
-    this.oscillator.disconnect();
-    this.audioContext.close();
     this.isStarted = false;
+  }
+
+  changeVolume(percent) {
+    this.volume = percent;
+  }
+
+  getVolume(): number {
+    return this.volume;
+  }
+
+  setTempo(tempo) {
+    this.tempo = tempo;
+    if (this.isStarted) {
+      this.stop();
+      this.start();
+    }
   }
 
 }
